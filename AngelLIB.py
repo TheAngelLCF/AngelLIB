@@ -81,6 +81,33 @@ def generate_downloader(start_dir: str, output_dir: str, name="downloader.lxf"):
 
 
 
+def init_server_sftp(ip_server: str, user: str, password: str, dir_name: str):
+    cnopts = pysftp.CnOpts()
+    cnopts.hostkeys = None
+    with pysftp.Connection(host=ip_server, username=user, password=password, cnopts=cnopts) as sftp:
+        splited = spliter(dir_name)
+        dir = ""
+        for elt in splited:
+            dir = elt
+            try:
+                sftp.mkdir(elt)
+                sftp.cd(dir)
+            except: sftp.cd(dir)
+    with pysftp.Connection(host=ip_server, username=user, password=password, cnopts=cnopts) as sftp:
+        print(dir)
+        sftp.cd(dir)
+        if("downloader.lxf" in os.listdir()): d = True
+        else: d = False
+        if("ignore.lxf" in os.listdir()): i = True
+        else: i = False
+        with open("downloader.lxf", 'a'): pass
+        with open("ignore.lxf", 'a'): pass
+        sftp.put("downloader.lxf", dir + "downloader.lxf")
+        sftp.put("ignore.lxf", dir + "downloader.lxf")
+        if(not d): os.remove("downloader.lxf")
+        if(not i): os.remove("ignore.lxf")
+        sftp.mkdir(dir + "files")
+
 class Downloader:
     def __init__(self, url_server: str, name_folder: str, custom_java: bool, logger=False, sftp=False, user='', password='', main_dir='') -> None:
         self.__path = os.getcwd()
@@ -483,7 +510,7 @@ print('|' + ' ' * 6 + 'Code by Valentin Thuillier' + ' ' * 6 + '|')
 print('|' + ' ' * 38 + '|')
 print("==" * 20)
 
-if __name__ == "__main__" and True:
+if __name__ == "__main__" and False:
     print("Démarrage du fichier en main !")
     # Commande test
     launcher = Downloader("https://test-angellib.000webhostapp.com", '.launcherTest', False, logger=True)
@@ -498,3 +525,4 @@ elif __name__ == '__main__' and False:
 
 elif __name__ == '__main__':
     print("Aucun système de test séléctionné !")
+    init_server_sftp("89.86.152.239", 'valjul', "bp2022pjt", "test/serveur_mc/")
